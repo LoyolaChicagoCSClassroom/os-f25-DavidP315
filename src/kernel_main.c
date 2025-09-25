@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "rprint.h" 
 
-// Multiboot header for the GRUB bootloader
+// multiboot header for the GRUB bootloader
 #define MULTIBOOT2_HEADER_MAGIC 0xe85250d6
 const unsigned int multiboot_header[] __attribute__((section(".multiboot"))) = {
     MULTIBOOT2_HEADER_MAGIC, 0, 16, -(16 + MULTIBOOT2_HEADER_MAGIC), 0, 12
