@@ -33,7 +33,7 @@ static void scroll() {
 }
 
 
-void putc(int data) {
+int my_putc(int data) {
     if (data == '\n') { 
         // beginning of the next line
         cursor_pos = cursor_pos + (VGA_WIDTH - (cursor_pos % VGA_WIDTH));
@@ -57,18 +57,19 @@ void putc(int data) {
         scroll(); 
         cursor_pos = (VGA_HEIGHT - 1) * VGA_WIDTH; // move cursor to the start of the new last line
     }
+return data;
 }
-
-void main() {
+int main() {
 
     // esp_printf to print the current execution level,
-    esp_printf(putc, "Execution Level: Ring 0\r\n");
-    esp_printf(putc, "Welcome to the kernel terminal!\r\n");
+    esp_printf(my_putc, "Execution Level: Ring 0\r\n");
+    esp_printf(my_putc, "Welcome to the kernel terminal!\r\n");
 
 
     for(int i = 0; i < 30; ++i) {
-        esp_printf(putc, "Test line %d: Hex is 0x%x\r\n", i, i * 1234);
+        esp_printf(my_putc, "Test line %d: Hex is 0x%x\r\n", i, i * 1234);
     }
+	return 0;
 
     while(1) {
         uint8_t status = inb(0x64);
