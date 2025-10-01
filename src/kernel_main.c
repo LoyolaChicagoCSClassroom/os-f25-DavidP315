@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "rprint.h" 
+#include "rprintf.h" 
 
 // multiboot header for the GRUB bootloader
 #define MULTIBOOT2_HEADER_MAGIC 0xe85250d6
