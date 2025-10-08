@@ -11,7 +11,6 @@ struct terminal_buffer {
 
 int col = 0, row = 0;
 
-/* VGA helper functions */
 void clear_line() {
     struct terminal_buffer *vram = (struct terminal_buffer*)0xB8000;
     for (int i = 0; i < W; i++) {
@@ -36,13 +35,12 @@ void putc(char data) {
     col++;
 }
 
-/* Entry point */
 void main(void) {
     remap_pic();
     load_gdt();
     init_idt();
-    asm("sti");           // Enable interrupts
+    asm("sti");           
 
-    for (int i = 0; i < H; i++) scroll();   // clear screen
-    while (1);            // CPU waits for keyboard interrupts
+    for (int i = 0; i < H; i++) scroll();   
+    while (1);            
 }

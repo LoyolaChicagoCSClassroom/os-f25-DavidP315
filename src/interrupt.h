@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-/* PIC (Programmable Interrupt Controller) constants */
 #define PIC1        0x20
 #define PIC2        0xA0
 #define PIC_1_COMMAND   PIC1
@@ -12,7 +11,6 @@
 #define PIC_2_DATA      (PIC2 + 1)
 #define PIC_EOI         0x20
 
-/* IDT structures */
 struct idt_entry {
     uint16_t base_lo;
     uint16_t sel;
@@ -26,9 +24,7 @@ struct idt_ptr {
     uint32_t base;
 } __attribute__((packed));
 
-/* GDT / TSS definitions (you already have these) */
 
-/* Function prototypes */
 void remap_pic(void);
 void load_gdt(void);
 void init_idt(void);
