@@ -5,8 +5,9 @@
 //#include <ctype.h>
 //#include <string.h>
 #include <stdarg.h>
+#include <stddef.h>
 
-typedef unsigned int  size_t;
+//typedef unsigned int  size_t;
 
 #define NULL (void*)0
 

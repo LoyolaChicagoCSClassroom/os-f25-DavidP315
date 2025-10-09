@@ -15,7 +15,7 @@ LD := $(PREFIX)ld
 OBJDUMP := $(PREFIX)objdump
 OBJCOPY := $(PREFIX)objcopy
 SIZE := $(PREFIX)size
-
+CONFIGS := -DCONFIG_HEAP_SIZE=4096
 CFLAGS := -ffreestanding -mgeneral-regs-only -mno-mmx -m32 -march=i386 -O2 -nostdlib
 
 ODIR = obj
@@ -23,8 +23,8 @@ SDIR = src
 
 OBJS = \
 	kernel_main.o \
-	interrupt.o \
 	rprintf.o \
+	page.o \
 #
 
 OBJ = $(patsubst %,$(ODIR)/%,$(OBJS))
