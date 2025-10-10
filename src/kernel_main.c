@@ -1,9 +1,10 @@
 #include <stdint.h>
 #include "rprintf.h"
 #include "page.h"
+#include "fat.h"
+#include "ide.h"
 
 #define MULTIBOOT2_HEADER_MAGIC         0xe85250d6
-
 const unsigned int multiboot_header[]  __attribute__((section(".multiboot"))) = {MULTIBOOT2_HEADER_MAGIC, 0, 16, -(16+MULTIBOOT2_HEADER_MAGIC), 0, 12};
 
 uint8_t inb (uint16_t _port) {
@@ -37,10 +38,8 @@ int putc(int ch) {
       newLine();
       return ch;
     }
-
     video_memory[row * width + column].ASCII = (unsigned char)ch;
     video_memory[row * width + column].COLOR = default_color;
-
     if (++column >= width) newLine();
     return ch;
 }
@@ -108,21 +107,75 @@ unsigned char keyboard_map[128] =
    0,  /* All other keys are undefined */
 };
 
+//Fat filesystem demo
+void fat_demo(void) {
+    esp_printf(vga_putc, "==================================\n");
+    esp_printf(vga_putc, "FAT FILESYSTEM DRIVER DEMO\n");
+    esp_printf(vga_putc, "==================================\n\n");
+
+    if (fatInit() != 0) {
+        esp_printf(vga_putc, "ERROR: Failed to initialize FAT filesystem\n");
+        return;
+    }
+
+    struct file *file = fatOpen("test.txt");
+    if (!file) {
+        esp_printf(vga_putc, "ERROR: Failed to open test.txt\n");
+        return;
+    }
+    static char buffer[4096];
+
+    esp_printf(vga_putc, "Reading file contents...\n");
+    int bytes_read = fatRead(file, buffer, 4095);
+
+    if (bytes_read < 0) {
+        esp_printf(vga_putc, "ERROR: Failed to read file\n");
+        return;
+    }
+
+    buffer[bytes_read] = '\0';
+
+    esp_printf(vga_putc, "\n--- File Contents (%d bytes) ---\n", bytes_read);
+    esp_printf(vga_putc, "%s", buffer);
+    esp_printf(vga_putc, "\n--- End of File ---\n\n");
+
+  extern struct boot_sector g_boot_sector;
+    extern uint32_t g_partition_lba_offset;
+
+    uint32_t root_dir_start = g_partition_lba_offset + 
+                              g_boot_sector.num_reserved_sectors + 
+                              g_boot_sector.num_fat_tables * g_boot_sector.num_sectors_per_fat;
+
+    esp_printf(vga_putc, "=== Boot Sector Information ===\n");
+    esp_printf(vga_putc, "Number of bytes per sector = %d\n", g_boot_sector.bytes_per_sector);
+    esp_printf(vga_putc, "Number of sectors per cluster = %d\n", g_boot_sector.num_sectors_per_cluster);
+    esp_printf(vga_putc, "Number of reserved sectors = %d\n", g_boot_sector.num_reserved_sectors);
+    esp_printf(vga_putc, "Number of FAT tables = %d\n", g_boot_sector.num_fat_tables);
+    esp_printf(vga_putc, "Number of RDEs = %d\n", g_boot_sector.num_root_dir_entries);
+    esp_printf(vga_putc, "Root directory region start (sectors) = %d\n", root_dir_start);
+
+    esp_printf(vga_putc, "\nFAT filesystem demo completed successfully!\n\n");
+}
+
 void main(void){
     init_pfa_list();
     esp_printf(vga_putc, "Page Frame Allocator Initialized!\n");
     print_pfa_state();
-
+    
+    esp_printf(vga_putc, "\n");
+    fat_demo();
+    
     enable_paging();
     esp_printf(vga_putc, "Paging enabled from kernel_main.\n");
-    esp_printf(vga_putc, "Hello from paged world!\n");
-
+    
+    esp_printf(vga_putc, "Hello from paged world!\n\n");
+    
+    esp_printf(vga_putc, "Press any key...\n\n");
+    
     while(1) {
         uint8_t status = inb(0x64);
-
         if(status & 1) {
             uint8_t scancode = inb(0x60);
-
             if(scancode < 128) {
                 esp_printf(putc, "0x%02x    %c\n", scancode, keyboard_map[scancode]);
             }
